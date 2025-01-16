@@ -1,4 +1,4 @@
-"use client"
+
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
