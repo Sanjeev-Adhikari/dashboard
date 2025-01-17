@@ -1,5 +1,12 @@
 import DynamicTable from "@/components/dynamicTable/table";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { getOrders } from "@/lib/actions/order.action";
 import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
 import moment from "moment";
@@ -11,29 +18,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const ordersBreadcrumb = [
-
   { label: "dashboard", link: "/dashboard" },
-  { label: "Orders", link: "" }
+  { label: "Orders", link: "" },
 ];
 
 interface Items {
-  items: string,
-  item: string,
-  foodName: string,
-  image: string
+  items: string;
+  item: string;
+  foodName: string;
+  image: string;
 }
 
 const tableColumns = [
   {
     header: "Order Name",
     accessor: "items",
-    render: (items: Items[]) => items.map((item: Items) => item.foodName).join(", ")
+    render: (items: Items[]) =>
+      items.map((item: Items) => item.foodName).join(", "),
   },
   { header: "User", accessor: "user" },
   {
     header: "Ordered On",
     accessor: "createdAt",
-    render: (createdAt: any) => moment(createdAt).format("MMMM Do YYYY, h:mm A"),
+    render: (createdAt: any) =>
+      moment(createdAt).format("MMMM Do YYYY, h:mm A"),
   },
   {
     header: "Image",

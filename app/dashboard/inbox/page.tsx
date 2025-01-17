@@ -20,46 +20,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
-
 const inbox: breadCrumbItems[] = [
-  
-
   {
     label: "dashboard",
-    link: "/dashboard"
+    link: "/dashboard",
   },
   {
     label: "My Inbox",
-    link: ""
-  }
-
-]
-
-
+    link: "",
+  },
+];
 
 const tableColumns = [
-
-  
   {
     header: "Name",
     accessor: "name",
-    
   },
   {
     header: "Email",
     accessor: "email",
-    
   },
   {
     header: "Message",
     accessor: "message",
-    
   },
   {
     header: "Phone Number",
     accessor: "phone",
-    
   },
   {
     header: "Messaged On",
@@ -92,32 +79,31 @@ const tableColumns = [
     ),
   },
 ];
-const Inbox = async() => {
+const Inbox = async () => {
   const data = await getInbox();
-    return ( 
-   <>
-        <Breadcrumb>
-                     <BreadcrumbList>
-                       {inbox.map((item, index) => (
-                         <BreadcrumbItem key={index}>
-                           {index === inbox.length - 1 ? (
-                             // Last item displayed as the current page
-                             <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                           ) : (
-                             // Other items as links
-                             <>
-                               <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
-                               <BreadcrumbSeparator />
-                             </>
-                           )}
-                         </BreadcrumbItem>
-                       ))}
-                     </BreadcrumbList>
-        </Breadcrumb>
-          <DynamicTable data={data} columns={tableColumns} />
-   </>
+  return (
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          {inbox.map((item, index) => (
+            <BreadcrumbItem key={index}>
+              {index === inbox.length - 1 ? (
+                // Last item displayed as the current page
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              ) : (
+                // Other items as links
+                <>
+                  <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
+                  <BreadcrumbSeparator />
+                </>
+              )}
+            </BreadcrumbItem>
+          ))}
+        </BreadcrumbList>
+      </Breadcrumb>
+      <DynamicTable data={data} columns={tableColumns} />
+    </>
+  );
+};
 
-     );
-}
- 
 export default Inbox;

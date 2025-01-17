@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 export default function BannerForm() {
   const [fileName, setFileName] = useState<string | null>(null); // State to store the file name
 
-      const router = useRouter();
+  const router = useRouter();
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -24,23 +24,22 @@ export default function BannerForm() {
       return;
     }
 
-   try {
-       await addBanner(bannerName, image);
-       alert("Banner created successfully!");
-       router.push("/dashboard/banners")
-     } catch (error) {
-       console.error("Error creating banner:", error);
-       alert("Failed to create banner. Please try again.");
-     }
-   }
-  
+    try {
+      await addBanner(bannerName, image);
+      alert("Banner created successfully!");
+      router.push("/dashboard/banners");
+    } catch (error) {
+      console.error("Error creating banner:", error);
+      alert("Failed to create banner. Please try again.");
+    }
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setFileName(file.name); 
+      setFileName(file.name);
     } else {
-      setFileName(null); 
+      setFileName(null);
     }
   };
 
@@ -93,7 +92,7 @@ export default function BannerForm() {
             </div>
 
             {/* Submit Button */}
-            <Button type="submit"  variant="ghost">
+            <Button type="submit" variant="ghost">
               Create Banner
             </Button>
           </form>

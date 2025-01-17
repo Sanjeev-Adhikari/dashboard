@@ -1,11 +1,12 @@
 import { UserData } from "@/interface/userTypes";
 
-
 export async function getUsers(): Promise<UserData[]> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables.");
+      throw new Error(
+        "NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables."
+      );
     }
 
     const response = await fetch(`${backendUrl}/api/admin/all-users`, {

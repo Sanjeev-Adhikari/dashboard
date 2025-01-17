@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const menu: breadCrumbItems[] = [
- 
   {
     label: "dashboard",
     link: "/dashboard",
@@ -114,7 +113,9 @@ const Menu = () => {
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
                   <>
-                    <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
+                    <BreadcrumbLink href={item.link}>
+                      {item.label}
+                    </BreadcrumbLink>
                     <BreadcrumbSeparator />
                   </>
                 )}

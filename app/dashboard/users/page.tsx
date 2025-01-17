@@ -18,11 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
-
 const tableColumns = [
-
-  
   {
     header: "User Name",
     accessor: "userName",
@@ -31,8 +27,8 @@ const tableColumns = [
     header: "User Email",
     accessor: "userEmail",
   },
-  {   
-  header: "Role",
+  {
+    header: "Role",
     accessor: "role",
   },
   {
@@ -63,24 +59,20 @@ const tableColumns = [
 ];
 
 const users: breadCrumbItems[] = [
-  
-
   {
     label: "dashboard",
-    link: "/dashboard"
+    link: "/dashboard",
   },
   {
     label: "Users",
-    link: ""
-  }
-
-]
+    link: "",
+  },
+];
 const Users = async () => {
-
-  const data = await getUsers()
-    return ( 
-       <>
-        <Breadcrumb>
+  const data = await getUsers();
+  return (
+    <>
+      <Breadcrumb>
         <BreadcrumbList>
           {users.map((item, index) => (
             <BreadcrumbItem key={index}>
@@ -99,8 +91,8 @@ const Users = async () => {
         </BreadcrumbList>
       </Breadcrumb>
       <DynamicTable data={data} columns={tableColumns} />
-       </>
-     );
-}
- 
+    </>
+  );
+};
+
 export default Users;

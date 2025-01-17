@@ -38,9 +38,7 @@ const tableColumns = [
   {
     header: "Category",
     accessor: "categoryName",
-    render: (categoryName: string) => (
-      <div>{categoryName}</div>
-    ),
+    render: (categoryName: string) => <div>{categoryName}</div>,
   },
   {
     header: "Image",
@@ -97,7 +95,9 @@ const Categories = async () => {
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
                   <>
-                    <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
+                    <BreadcrumbLink href={item.link}>
+                      {item.label}
+                    </BreadcrumbLink>
                     <BreadcrumbSeparator />
                   </>
                 )}

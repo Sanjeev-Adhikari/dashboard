@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,6 @@ export default function CategoryForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-  
     // Extract form data
     const formData = new FormData(event.currentTarget);
     const categoryName = formData.get("name") as string;
@@ -29,7 +27,7 @@ export default function CategoryForm() {
     try {
       await addCategory(categoryName, image);
       alert("Category created successfully!");
-      router.push("/dashboard/categories")
+      router.push("/dashboard/categories");
     } catch (error) {
       console.error("Error creating category:", error);
       alert("Failed to create category. Please try again.");
@@ -39,9 +37,9 @@ export default function CategoryForm() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (file) {
-      setFileName(file.name); 
+      setFileName(file.name);
     } else {
-      setFileName(null); 
+      setFileName(null);
     }
   };
 
@@ -57,7 +55,10 @@ export default function CategoryForm() {
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Category Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm text-gray-900 font-medium">
+              <Label
+                htmlFor="name"
+                className="text-sm text-gray-900 font-medium"
+              >
                 Category Name
               </Label>
               <input
@@ -71,7 +72,10 @@ export default function CategoryForm() {
 
             {/* Category Image */}
             <div className="space-y-2">
-              <Label htmlFor="image" className="text-sm text-gray-900 font-medium">
+              <Label
+                htmlFor="image"
+                className="text-sm text-gray-900 font-medium"
+              >
                 Category Image
               </Label>
               <div className="relative w-full p-2 border border-gray-300 rounded-md">
@@ -94,7 +98,7 @@ export default function CategoryForm() {
             </div>
 
             {/* Submit Button */}
-            <Button type="submit"  variant="ghost">
+            <Button type="submit" variant="ghost">
               Create Category
             </Button>
           </form>
