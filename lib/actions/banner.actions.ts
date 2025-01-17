@@ -1,4 +1,4 @@
-export async function getCategory(){
+export async function getBanner(){
     try {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     console.log(backendUrl)
@@ -6,14 +6,13 @@ export async function getCategory(){
       throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables.");
     }
 
-    const response = await fetch(`${backendUrl}/api/category`, {
+    const response = await fetch(`${backendUrl}/api/admin/banners`, {
         method: "GET",
         headers:{
             "Content-type": "application/json"
         }
+        
     });
-    
-
     if(!response.ok){
         throw new Error(`Failed to fetch data:${response.statusText}` )
     }
@@ -21,8 +20,6 @@ export async function getCategory(){
     const data = await response.json();
    
     return data.data;
-  
-
     } catch (error) {
         if(error instanceof TypeError){
             console.error("Network Error:", error.message)
@@ -32,7 +29,7 @@ export async function getCategory(){
     }
 }
 
-export async function addCategory(categoryName: string, image: File) {
+export async function addBanner(bannerName: string, image: File) {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       if (!backendUrl) {
@@ -40,24 +37,25 @@ export async function addCategory(categoryName: string, image: File) {
       }
   
       const formData = new FormData();
-      formData.append("categoryName", categoryName);
+      formData.append("bannerName", bannerName);
       formData.append("image", image);
   
-      const response = await fetch(`${backendUrl}/api/admin/add-category`, {
+      const response = await fetch(`${backendUrl}/api/admin/add-banner`, {
         method: "POST",
         body: formData,
       });
   
       console.log(response)
       if (!response.ok) {
-        throw new Error(`Failed to add category: ${response.statusText}`);
+        throw new Error(`Failed to add banner: ${response.statusText}`);
       }
   
       const data = await response.json();
-      console.log("category added successfully:", data);
-      
+      console.log("Banner added successfully:", data);
+     
     } catch (error) {
-      console.error("Error adding category:", error);
+      console.error("Error adding banner:", error);
       
     }
   }
+  

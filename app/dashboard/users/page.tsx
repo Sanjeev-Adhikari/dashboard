@@ -9,6 +9,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { breadCrumbItems } from "@/constants/constants";
 import { getUsers } from "@/lib/actions/user.action";
+import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 
@@ -26,14 +34,36 @@ const tableColumns = [
   {   
   header: "Role",
     accessor: "role",
-  }
+  },
+  {
+    header: "Action",
+    accessor: "action",
+    render: (row: any) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex items-center focus:outline-none">
+          <MoreVertical className="h-4 w-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
+            <Eye className="h-4 w-4" />
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
+            <Edit className="h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100">
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
 ];
 
 const users: breadCrumbItems[] = [
-  {
-    label: "home",
-    link: "/"
-  },
+  
 
   {
     label: "dashboard",

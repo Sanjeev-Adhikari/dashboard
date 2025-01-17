@@ -2,8 +2,11 @@ import { navLinks } from "@/constants/constants";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../public/images/LogoRed.png"
+import { usePathname } from "next/navigation";
 
 const SideBar = () => {
+  const pathName = usePathname();
+  
 
     return ( 
 
@@ -18,8 +21,13 @@ const SideBar = () => {
           {navLinks.map((link, index) => (
             <li key={index}>
               <Link
+              
                 href={link.href}
-                className="flex items-center gap-3 py-1 text-xs px-4 rounded transition duration-200"
+                className={`${
+                  pathName === link.href
+                    ? "bg-red-200 rounded-md flex  items-center gap-3 py-1 text-xs px-4  transition duration-200"
+                    : "  flex  items-center gap-3 py-1 text-xs px-4  transition duration-200"
+                }`}
               >
                 <Image  src={link.icon} alt={link.label} width={18} height={18} />
                 <span >{link.label}</span>

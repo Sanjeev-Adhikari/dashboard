@@ -9,7 +9,15 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { getCategory } from "@/lib/actions/category.action";
-import { Eye } from "lucide-react";
+import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 const breadCrumbItems = [
   {
@@ -44,10 +52,26 @@ const tableColumns = [
   {
     header: "Action",
     accessor: "action",
-    render: () => (
-      <button className="text-blue-600 hover:underline">
-        <Eye className="text-gray-900" />
-      </button>
+    render: (row: any) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex items-center focus:outline-none">
+          <MoreVertical className="h-4 w-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32">
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
+            <Eye className="h-4 w-4" />
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
+            <Edit className="h-4 w-4" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100">
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     ),
   },
 ];
@@ -81,7 +105,9 @@ const Categories = async () => {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <Button variant="ghost">Add Categories</Button>
+        <Link href="/dashboard/categories/addcategory">
+          <Button variant="ghost">Add Category</Button>
+        </Link>
       </div>
 
       <DynamicTable data={tableData} columns={tableColumns} />
