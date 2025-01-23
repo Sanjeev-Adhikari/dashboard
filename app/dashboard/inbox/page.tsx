@@ -1,3 +1,4 @@
+"use client"
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
@@ -8,7 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { breadCrumbItems } from "@/constants/constants";
-import { getInbox } from "@/lib/actions/inbox.action";
+
 
 import moment from "moment";
 import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
@@ -19,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { getToken } from "@/utils/getToken";
 
 const inbox: breadCrumbItems[] = [
   {
@@ -79,8 +82,46 @@ const tableColumns = [
     ),
   },
 ];
-const Inbox = async () => {
-  const data = await getInbox();
+const Inbox =  () => {
+   const [data, setData] = useState<any[]>([]);  // State for storing banner data
+    const [loading, setLoading] = useState<boolean>(true);  // State for loading state
+    const [error, setError] = useState<string | null>(null); 
+      const fetchData = async () => {
+        const token = getToken();
+    
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!backendUrl) {
+          setError("Backend URL is not defined.");
+          setLoading(false);
+          return;
+        }
+    
+        try {
+          const response = await fetch(`${backendUrl}/api/admin/inbox`, {
+            method: "GET",
+            headers: {
+              "Content-type": "application/json",
+              Authorization: `${token}`,  // Include token in the request header
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error(`Failed to fetch inbox: ${response.statusText}`);
+          }
+    
+          const data = await response.json();
+          setData(data.data);  // Set the fetched banner data
+        } catch (error: any) {
+          setError(`Error: ${error.message}`);
+        } finally {
+          setLoading(false);  // Set loading to false once fetch is complete
+        }
+      };
+
+        useEffect(() => {
+          fetchData();
+        }, []);
+    
   return (
     <>
       <Breadcrumb>
@@ -101,7 +142,12 @@ const Inbox = async () => {
           ))}
         </BreadcrumbList>
       </Breadcrumb>
+
+      {loading && <div>Loading Inbox...</div>}
+      {error && <div className="text-red-600">{error}</div>}
+      {!loading && !error && (
       <DynamicTable data={data} columns={tableColumns} />
+    )}
     </>
   );
 };

@@ -1,3 +1,5 @@
+import { getToken } from "@/utils/getToken";
+
 export async function getMenu() {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -7,6 +9,7 @@ export async function getMenu() {
         "NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables."
       );
     }
+
 
     const response = await fetch(`${backendUrl}/api/food`, {
       method: "GET",

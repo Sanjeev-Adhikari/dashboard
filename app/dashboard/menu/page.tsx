@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getToken } from "@/utils/getToken";
 
 const menu: breadCrumbItems[] = [
   {
@@ -46,13 +47,13 @@ const tableColumns = [
       <img src={image} alt="Product" className="w-8 h-8 object-cover" />
     ),
   },
-  {
-    header: "Category",
-    accessor: "categoryId",
-    render: (categoryId: any) => (
-      <div className="w-8 h-8 object-cover">{categoryId.categoryName}</div>
-    ),
-  },
+  // {
+  //   header: "Category",
+  //   accessor: "categoryId",
+  //   render: (categoryId: any) => (
+  //     <div className="w-8 h-8 object-cover">{categoryId.categoryName}</div>
+  //   ),
+  // },
   {
     header: "Price",
     accessor: "foodPrice",
@@ -85,20 +86,25 @@ const tableColumns = [
 ];
 
 const Menu = () => {
-  const [data, setData] = useState<any[]>([]); // State to hold the table data
-  const [loading, setLoading] = useState(true); // State to manage loading
 
-  // Fetch data on component mount
+
+  
+  const token = getToken();
+  console.log(token)
+  const [data, setData] = useState<any[]>([]); 
+  const [loading, setLoading] = useState(true); 
+
+
   useEffect(() => {
     getMenu()
       .then((response) => {
-        setData(response); // Update state with fetched data
+        setData(response); 
       })
       .catch((error) => {
         console.error("Error fetching menu data:", error);
       })
       .finally(() => {
-        setLoading(false); // Set loading to false regardless of success or failure
+        setLoading(false);
       });
   }, []);
 

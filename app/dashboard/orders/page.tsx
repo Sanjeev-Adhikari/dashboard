@@ -1,3 +1,5 @@
+"use client"
+import { useEffect, useState } from "react";
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
@@ -7,7 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getOrders } from "@/lib/actions/order.action";
 import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
 import moment from "moment";
 import {
@@ -16,39 +17,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OrderData } from "@/interface/orderTypes";
+import { getToken } from "@/utils/getToken";
 
 const ordersBreadcrumb = [
   { label: "dashboard", link: "/dashboard" },
   { label: "Orders", link: "" },
 ];
 
-interface Items {
-  items: string;
-  item: string;
-  foodName: string;
-  image: string;
-}
-
 const tableColumns = [
   {
     header: "Order Name",
     accessor: "items",
-    render: (items: Items[]) =>
-      items.map((item: Items) => item.foodName).join(", "),
+    render: (items: any[]) =>
+      items.map((item) => item.foodName).join(", "),
   },
   { header: "User", accessor: "user" },
   {
     header: "Ordered On",
     accessor: "createdAt",
-    render: (createdAt: any) =>
+    render: (createdAt: string) =>
       moment(createdAt).format("MMMM Do YYYY, h:mm A"),
   },
   {
     header: "Image",
     accessor: "items",
-    render: (items: Items[]) => (
+    render: (items: any[]) => (
       <>
-        {items.map((item: Items, index: number) => (
+        {items.map((item, index) => (
           <img
             key={index}
             src={item.image}
@@ -89,8 +85,66 @@ const tableColumns = [
   },
 ];
 
-const Orders = async () => {
-  const data = await getOrders();
+const Orders = () => {
+  const [data, setData] = useState<OrderData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!backendUrl) {
+          throw new Error(
+            "NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables."
+          );
+        }
+        const token = getToken()
+
+        const response = await fetch(`${backendUrl}/api/admin/orders`, {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            "Authorization": `${token}`
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const orders = result.data;
+
+        if (orders && orders.length > 0) {
+          const formattedOrders = orders.map((order: OrderData) => ({
+            ...order,
+            items: order.items.map((item) => ({
+              foodName: item.food.foodName,
+              quantity: item.quantity,
+              image: item.food.image,
+            })),
+            user: order.userId.userName,
+            userEmail: order.userId.userEmail,
+            totalAmount: order.totalAmount,
+            paymentStatus: order.paymentDetails.status,
+            shippingAddress: order.shippingAddress,
+          }));
+          setData(formattedOrders);
+        } else {
+          setData([]);
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <>

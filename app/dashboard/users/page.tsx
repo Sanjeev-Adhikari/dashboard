@@ -1,3 +1,5 @@
+"use client"
+import React, { useEffect, useState } from "react";
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
@@ -8,7 +10,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { breadCrumbItems } from "@/constants/constants";
-import { getUsers } from "@/lib/actions/user.action";
 import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
 
 import {
@@ -17,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getToken } from "@/utils/getToken";
+
 
 const tableColumns = [
   {
@@ -58,7 +61,7 @@ const tableColumns = [
   },
 ];
 
-const users: breadCrumbItems[] = [
+const breadcrumbs: breadCrumbItems[] = [
   {
     label: "dashboard",
     link: "/dashboard",
@@ -68,19 +71,62 @@ const users: breadCrumbItems[] = [
     link: "",
   },
 ];
-const Users = async () => {
-  const data = await getUsers();
+
+const Users = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = getToken();
+        console.log("token",token)
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        console.log("backend url",backendUrl)
+
+        if (!backendUrl) {
+          throw new Error(
+            "NEXT_PUBLIC_BACKEND_URL is not defined in the environment variables."
+          );
+        }
+
+        const response = await fetch(`${backendUrl}/api/admin/all-users`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        setData(result.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <>
       <Breadcrumb>
         <BreadcrumbList>
-          {users.map((item, index) => (
+          {breadcrumbs.map((item, index) => (
             <BreadcrumbItem key={index}>
-              {index === users.length - 1 ? (
-                // Last item displayed as the current page
+              {index === breadcrumbs.length - 1 ? (
                 <BreadcrumbPage>{item.label}</BreadcrumbPage>
               ) : (
-                // Other items as links
                 <>
                   <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
                   <BreadcrumbSeparator />

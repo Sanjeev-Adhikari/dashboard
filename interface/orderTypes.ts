@@ -1,6 +1,6 @@
 export interface OrderData {
     _id: string;
-    user: {
+    userId: {
       _id: string;
       userName: string;
       userEmail: string;
