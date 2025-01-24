@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
@@ -9,7 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
+import { Eye, MoreVertical } from "lucide-react";
 import moment from "moment";
 import {
   DropdownMenu,
@@ -25,69 +26,70 @@ const ordersBreadcrumb = [
   { label: "Orders", link: "" },
 ];
 
-const tableColumns = [
-  {
-    header: "Order Name",
-    accessor: "items",
-    render: (items: any[]) =>
-      items.map((item) => item.foodName).join(", "),
-  },
-  { header: "User", accessor: "user" },
-  {
-    header: "Ordered On",
-    accessor: "createdAt",
-    render: (createdAt: string) =>
-      moment(createdAt).format("MMMM Do YYYY, h:mm A"),
-  },
-  {
-    header: "Image",
-    accessor: "items",
-    render: (items: any[]) => (
-      <>
-        {items.map((item, index) => (
-          <img
-            key={index}
-            src={item.image}
-            alt={item.foodName}
-            className="w-8 h-8 object-cover"
-          />
-        ))}
-      </>
-    ),
-  },
-  { header: "Price", accessor: "totalAmount" },
-  { header: "Payment Status", accessor: "paymentStatus" },
-  { header: "Shipping Address", accessor: "shippingAddress" },
-  {
-    header: "Action",
-    accessor: "action",
-    render: (row: any) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center focus:outline-none">
-          <MoreVertical className="h-4 w-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
-            <Eye className="h-4 w-4" />
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
-            <Edit className="h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100">
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-];
-
 const Orders = () => {
+  const router = useRouter();
   const [data, setData] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Move tableColumns inside the component
+  const tableColumns = [
+    {
+      header: "Order Name",
+      accessor: "items",
+      render: (items: any) => 
+        Array.isArray(items.items) ? items.items.map((item: any) => item.foodName).join(", ") : "No items",
+    },
+    { header: "User", accessor: "user" },
+    {
+      header: "Ordered On",
+      accessor: "createdAt",
+      render: (createdAt: string) =>
+        moment(createdAt).format("MMMM Do YYYY, h:mm A"),
+    },
+    {
+      header: "Image",
+      accessor: "items",
+      render: (items: any) => (
+        <>
+          {Array.isArray(items) ? (
+            items.map((item, index) => (
+              <img
+                key={index}
+                src={item.image}
+                alt={item.foodName}
+                className="w-8 h-8 object-cover"
+              />
+            ))
+          ) : (
+            <span>No items</span>
+          )}
+        </>
+      ),
+    },
+    { header: "Price", accessor: "totalAmount" },
+    { header: "Payment Status", accessor: "paymentStatus" },
+    { header: "Shipping Address", accessor: "shippingAddress" },
+    {
+      header: "Action",
+      accessor: "action",
+      render: (row: any) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center focus:outline-none">
+            <MoreVertical className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem 
+              className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100"
+              onSelect={() => router.push(`/dashboard/orders/${row._id}`)}
+            >
+              <Eye className="h-4 w-4" />
+              View/Edit
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -114,6 +116,7 @@ const Orders = () => {
 
         const result = await response.json();
         const orders = result.data;
+        console.log(result.data)
 
         if (orders && orders.length > 0) {
           const formattedOrders = orders.map((order: OrderData) => ({

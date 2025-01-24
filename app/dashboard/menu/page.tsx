@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import DynamicTable from "@/components/dynamicTable/table";
 import {
   Breadcrumb,
@@ -15,7 +15,6 @@ import { breadCrumbItems } from "@/constants/constants";
 import { getMenu } from "@/lib/actions/menu.action"; // Assume this is a promise-based API call
 import Link from "next/link";
 import { Eye, Edit, Trash2, MoreVertical } from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getToken } from "@/utils/getToken";
 
+// Constants for breadcrumbs
 const menu: breadCrumbItems[] = [
   {
     label: "dashboard",
@@ -35,7 +35,8 @@ const menu: breadCrumbItems[] = [
   },
 ];
 
-const tableColumns = [
+// Table columns definition
+const tableColumns = (handleDelete: (id: string) => void) => [
   {
     header: "Food Name",
     accessor: "foodName",
@@ -43,17 +44,17 @@ const tableColumns = [
   {
     header: "Image",
     accessor: "image",
-    render: (image: string) => (
-      <img src={image} alt="Product" className="w-8 h-8 object-cover" />
+    render: (image: any) => (
+      <img src={image.image} alt="Product" className="w-8 h-8 object-cover" />
     ),
   },
-  // {
-  //   header: "Category",
-  //   accessor: "categoryId",
-  //   render: (categoryId: any) => (
-  //     <div className="w-8 h-8 object-cover">{categoryId.categoryName}</div>
-  //   ),
-  // },
+  {
+    header: "Category",
+    accessor: "categoryId",
+    render: (categoryId: any) => (
+      <div className="w-8 h-8 object-cover">{categoryId.categoryId.categoryName}</div>
+    ),
+  },
   {
     header: "Price",
     accessor: "foodPrice",
@@ -75,7 +76,10 @@ const tableColumns = [
             <Edit className="h-4 w-4" />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100">
+          <DropdownMenuItem
+            className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100"
+            onClick={() => handleDelete(row._id)}  // Use _id to delete
+          >
             <Trash2 className="h-4 w-4" />
             Delete
           </DropdownMenuItem>
@@ -86,26 +90,80 @@ const tableColumns = [
 ];
 
 const Menu = () => {
-
-
-  
-  const token = getToken();
-  console.log(token)
   const [data, setData] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null);
 
+  // Function to fetch menu items from the API
+  const fetchData = async () => {
+    const token = getToken();
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      setError("Backend URL is not defined.");
+      setLoading(false);
+      return;
+    }
 
-  useEffect(() => {
-    getMenu()
-      .then((response) => {
-        setData(response); 
-      })
-      .catch((error) => {
-        console.error("Error fetching menu data:", error);
-      })
-      .finally(() => {
-        setLoading(false);
+    try {
+      const response = await fetch(`${backendUrl}/api/food`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `${token}`, 
+        },
       });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch menu: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setData(data.data); 
+    } catch (error: any) {
+      setError(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle deleting a menu item
+  const handleDelete = async (_id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this menu item?");
+    if (!confirmed) return;
+
+    const token = getToken();
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      setError("Backend URL is not defined.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/api/admin/delete-food/${_id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `${token}`, 
+        },
+      });
+
+      console.log("response",response)
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete menu item: ${response.statusText}`);
+      }
+
+      // Filter out the deleted menu item from the data
+      setData((prevData) => prevData.filter((item) => item._id !== _id)); 
+      console.log("Menu item deleted successfully.");
+    } catch (error: any) {
+      setError(`Error deleting menu item: ${error.message}`);
+    }
+  };
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    fetchData();
   }, []);
 
   return (
@@ -119,9 +177,7 @@ const Menu = () => {
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
                   <>
-                    <BreadcrumbLink href={item.link}>
-                      {item.label}
-                    </BreadcrumbLink>
+                    <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
                     <BreadcrumbSeparator />
                   </>
                 )}
@@ -134,10 +190,14 @@ const Menu = () => {
           <Button variant="ghost">Add Category</Button>
         </Link>
       </div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <DynamicTable data={data} columns={tableColumns} />
+
+      {/* Show loading or error state */}
+      {loading && <div>Loading...</div>}
+      {error && <div className="text-red-600">{error}</div>}
+
+      {/* Dynamic Table Component */}
+      {!loading && !error && (
+        <DynamicTable data={data} columns={tableColumns(handleDelete)} />
       )}
     </>
   );

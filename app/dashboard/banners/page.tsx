@@ -45,14 +45,14 @@ const tableColumns = (handleDelete: (id: string) => void) => [
   {
     header: "Image",
     accessor: "image",
-    render: (image: string) => (
-      <img src={image} alt="Banner" className="w-8 h-8 object-cover" />
+    render: (image: any) => (
+      <img src={image.image} alt="Banner" className="w-8 h-8 object-cover" />
     ),
   },
   {
     header: "Action",
     accessor: "action",
-    render: (id: string) => (
+    render: (row: any) => (
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center focus:outline-none">
           <MoreVertical className="h-4 w-4" />
@@ -68,7 +68,7 @@ const tableColumns = (handleDelete: (id: string) => void) => [
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100"
-            onClick={() => handleDelete(id)}  // Pass the banner ID to delete
+            onClick={() => handleDelete(row._id)}  // Use _id to delete
           >
             <Trash2 className="h-4 w-4" />
             Delete
@@ -81,9 +81,9 @@ const tableColumns = (handleDelete: (id: string) => void) => [
 
 // Main Banners component
 const Banners = () => {
-  const [data, setData] = useState<any[]>([]);  // State for storing banner data
-  const [loading, setLoading] = useState<boolean>(true);  // State for loading state
-  const [error, setError] = useState<string | null>(null);  // State for error handling
+  const [data, setData] = useState<any[]>([]); // State for storing banner data
+  const [loading, setLoading] = useState<boolean>(true); // State for loading state
+  const [error, setError] = useState<string | null>(null); // State for error handling
 
   // Function to fetch banners from the API
   const fetchData = async () => {
@@ -101,7 +101,7 @@ const Banners = () => {
         method: "GET",
         headers: {
           "Content-type": "application/json",
-          Authorization: `${token}`,  // Include token in the request header
+          Authorization: `${token}`, 
         },
       });
 
@@ -110,17 +110,21 @@ const Banners = () => {
       }
 
       const data = await response.json();
-      setData(data.data);  // Set the fetched banner data
+      setData(data.data); 
     } catch (error: any) {
       setError(`Error: ${error.message}`);
     } finally {
-      setLoading(false);  // Set loading to false once fetch is complete
+      setLoading(false); 
     }
   };
 
   // Function to handle deleting a banner
-  const handleDelete = async (id: string) => {
-   const token = getToken()
+  const handleDelete = async (_id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    if (!confirmed) {
+      return; 
+    }
+    const token = getToken();
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendUrl) {
       setError("Backend URL is not defined.");
@@ -128,11 +132,11 @@ const Banners = () => {
     }
 
     try {
-      const response = await fetch(`${backendUrl}/api/admin/banner/${id}`, {
+      const response = await fetch(`${backendUrl}/api/admin/banner/${_id}`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
-          Authorization: `${token}`,  // Include token in the request header
+          Authorization: `${token}`, // Include token in the request header
         },
       });
 
@@ -142,7 +146,7 @@ const Banners = () => {
 
       const data = await response.json();
       // Update the state by filtering out the deleted banner
-      setData((prevData) => prevData.filter((banner) => banner._id !== id));
+      setData((prevData) => prevData.filter((banner) => banner._id !== _id)); // Use _id to filter
       console.log("Banner deleted successfully:", data);
     } catch (error: any) {
       setError(`Error deleting banner: ${error.message}`);

@@ -3,29 +3,43 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { addCategory } from "@/lib/actions/category.action"; // Import the action
 import { useRouter } from "next/navigation";
+import { getToken } from "@/utils/getToken";
 
 export default function CategoryForm() {
   const [fileName, setFileName] = useState<string | null>(null); // State to store the file name
   const router = useRouter();
+
+  // Handle category form submission
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Extract form data
     const formData = new FormData(event.currentTarget);
-    const categoryName = formData.get("name") as string;
+    const categoryName = formData.get("categoryName") as string;
     const image = formData.get("image") as File;
 
-    // Validate inputs
     if (!categoryName || !image) {
       alert("Please provide both a category name and an image.");
       return;
     }
 
-    // Call the action
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    const token = getToken();
+
     try {
-      await addCategory(categoryName, image);
+      // Perform POST request to add the category
+      const addResponse = await fetch(`${backendUrl}/api/admin/add-category`, {
+        method: "POST",
+        headers: {
+         
+          Authorization: `${token}`, 
+        },
+        body: formData,
+      });
+      if (!addResponse.ok) {
+        throw new Error("Failed to create category");
+      }
       alert("Category created successfully!");
       router.push("/dashboard/categories");
     } catch (error) {
@@ -34,13 +48,10 @@ export default function CategoryForm() {
     }
   }
 
+  // Handle file input change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setFileName(file.name);
-    } else {
-      setFileName(null);
-    }
+    setFileName(file ? file.name : null);
   };
 
   return (
@@ -53,24 +64,22 @@ export default function CategoryForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-6">
-            {/* Category Name */}
             <div className="space-y-2">
               <Label
-                htmlFor="name"
+                htmlFor="categoryName"
                 className="text-sm text-gray-900 font-medium"
               >
                 Category Name
               </Label>
               <input
                 id="name"
-                name="name"
+                name="categoryName"
                 placeholder="Enter category name"
                 required
                 className="w-full text-sm p-2 border border-gray-300 rounded-md"
               />
             </div>
 
-            {/* Category Image */}
             <div className="space-y-2">
               <Label
                 htmlFor="image"
@@ -85,19 +94,18 @@ export default function CategoryForm() {
                   type="file"
                   accept="image/*"
                   required
-                  className="absolute  inset-0 opacity-0 cursor-pointer"
-                  onChange={handleFileChange} // Handle file change event
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={handleFileChange}
                 />
                 <div className="h-full text-sm text-gray-700">
                   Choose File{" "}
-                  <span className="ml-2  text-gray-400">
+                  <span className="ml-2 text-gray-400">
                     {fileName || "No file chosen"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Submit Button */}
             <Button type="submit" variant="ghost">
               Create Category
             </Button>

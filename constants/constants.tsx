@@ -1,4 +1,7 @@
+"use client"
+import { getToken } from "@/utils/getToken";
 import {ArrowUpNarrowWide, BookHeart, ChartBarStacked, ChartNoAxesGantt, LayoutDashboard, Logs, Settings, Shuffle, Users } from "lucide-react";
+import { useEffect, useState } from "react";
  interface NavLink{
     href: string,
     label: string,
@@ -55,40 +58,74 @@ export const navLinks:NavLink[] = [
 ]
 
 
-export const cards: CardItems[] = [
-    {
-        title: "Total Orders",
-        count: 4,
-        description: "Total orders from users",
-        icon: <ArrowUpNarrowWide />,
-        link: "/dashboard/orders",
-        color: "#EF5350"
-    },
-    {
-        title: "Total Users",
-        count: 4,
-        description: "Total users regostered",
-        icon: <ArrowUpNarrowWide />,
-        link: "/dashboard/users",
-        color: "#00C8C8"
-    },
-    {
-        title: "Menu Items",
-        count: 4,
-        description: "Total items in menu",
-        icon: <ArrowUpNarrowWide />,
-        link: "/dashboard/menu",
-        color: "#42A5F5"
-    },
-    {
-        title: "Total Categories",
-        count: 4,
-        description: "Total categories created",
-        icon: <ArrowUpNarrowWide />,
-        link: "/dashboard/categories",
-        color: "#66BB6A"
-    }
-]
 
 
 
+
+
+
+export const useDashboardData = () => {
+  const [dashboardData, setDashboardData] = useState({
+    totalFoodItems: 0,
+    totalOrders: 0,
+    totalUsers: 0,
+    totalCategories: 0,
+  });
+
+  const token = getToken();
+
+  useEffect(() => {
+    fetch("http://localhost:7000/api/admin/dashboard", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization : `${token}`
+        }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setDashboardData(data.data);
+        }
+      })
+      .catch((error) => console.error("Error fetching dashboard data", error));
+  }, []);
+
+  return dashboardData;
+};
+
+export const getCards = (dashboardData: any) => [
+  {
+    title: "Total Orders",
+    count: dashboardData.totalOrders,
+    description: "Total orders from users",
+    icon: <ArrowUpNarrowWide />,
+    link: "/dashboard/orders",
+    color: "#EF5350",
+  },
+  {
+    title: "Total Users",
+    count: dashboardData.totalUsers,
+    description: "Total users registered",
+    icon: <ArrowUpNarrowWide />,
+    link: "/dashboard/users",
+    color: "#00C8C8",
+  },
+  {
+    title: "Menu Items",
+    count: dashboardData.totalFoodItems,
+    description: "Total items in menu",
+    icon: <ArrowUpNarrowWide />,
+    link: "/dashboard/menu",
+    color: "#42A5F5",
+  },
+  {
+    title: "Total Categories",
+    count: dashboardData.totalCategories,
+    description: "Total categories created",
+    icon: <ArrowUpNarrowWide />,
+    link: "/dashboard/categories",
+    color: "#66BB6A",
+  },
+];
+  
