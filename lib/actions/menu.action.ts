@@ -1,4 +1,4 @@
-import { getToken } from "@/utils/getToken";
+
 
 export async function getMenu() {
   try {
