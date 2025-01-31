@@ -230,7 +230,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
           <div>
           <DropdownMenu>
-  <DropdownMenuTrigger><p className='text-sm border border-b'>Clck here for changing status</p></DropdownMenuTrigger>
+  {/* <DropdownMenuTrigger><p className='text-sm border border-b'>Clck here for changing status</p></DropdownMenuTrigger> */}
   <DropdownMenuContent>
     <DropdownMenuLabel>My Account</DropdownMenuLabel>
     <DropdownMenuSeparator />

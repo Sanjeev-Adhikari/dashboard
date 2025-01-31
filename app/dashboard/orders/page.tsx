@@ -12,14 +12,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Eye, MoreVertical } from "lucide-react";
 import moment from "moment";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import { OrderData } from "@/interface/orderTypes";
 import { getToken } from "@/utils/getToken";
+import { access } from "fs";
 
 const ordersBreadcrumb = [
   { label: "dashboard", link: "/dashboard" },
@@ -32,6 +29,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
 
   // Move tableColumns inside the component
+  
   const tableColumns = [
     {
       header: "Order Name",
@@ -39,6 +37,14 @@ const Orders = () => {
       render: (items: any) => 
         Array.isArray(items.items) ? items.items.map((item: any) => item.foodName).join(", ") : "No items",
     },
+    // {
+    //   header: "Image",
+    //   accessor: "image",
+    //   render: (image: any) => (
+    //     <img src={image.image} alt={} />
+    //   )
+
+    // }
     { header: "User", accessor: "user" },
     {
       header: "Ordered On",
@@ -116,7 +122,8 @@ const Orders = () => {
 
         const result = await response.json();
         const orders = result.data;
-        console.log(result.data)
+        
+        console.log("orders", orders)
 
         if (orders && orders.length > 0) {
           const formattedOrders = orders.map((order: OrderData) => ({
