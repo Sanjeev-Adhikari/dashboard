@@ -52,26 +52,7 @@ const Orders = () => {
       render: (createdAt: string) =>
         moment(createdAt).format("MMMM Do YYYY, h:mm A"),
     },
-    {
-      header: "Image",
-      accessor: "items",
-      render: (items: any) => (
-        <>
-          {Array.isArray(items) ? (
-            items.map((item, index) => (
-              <img
-                key={index}
-                src={item.image}
-                alt={item.foodName}
-                className="w-8 h-8 object-cover"
-              />
-            ))
-          ) : (
-            <span>No items</span>
-          )}
-        </>
-      ),
-    },
+    
     { header: "Price", accessor: "totalAmount" },
     { header: "Payment Status", accessor: "paymentStatus" },
     { header: "Shipping Address", accessor: "shippingAddress" },

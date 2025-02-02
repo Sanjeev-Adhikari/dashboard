@@ -4,7 +4,6 @@ import { getToken } from '@/utils/getToken';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -15,12 +14,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface OrderDetails {
   _id: string;
@@ -64,6 +66,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [orderStatus, setOrderStatus] = useState<string>("");
   const [paymentStatus, setPaymentStatus] = useState<string>("");
   const [deliveryCharge, setDeliveryCharge] = useState<number>(0);
+  const [selectedType, setSelectedType] = useState<'order' | 'payment'>('order');
+
+  const orderStatusOptions = ["pending", "delivered", "underpreparation", "cancelled", "ontheway"];
+  const paymentStatusOptions = ["paid", "unpaid", "failed", "pending"];
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -133,7 +139,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       const token = getToken();
 
       const response = await fetch(`${backendUrl}/api/admin/orders/change-order-status/${id}`, {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `${token}`,
@@ -146,6 +152,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       }
 
       setOrderStatus(newStatus);
+      window.location.href = `/dashboard/orders/${id}`;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     }
@@ -156,8 +163,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const token = getToken();
 
-      const response = await fetch(`${backendUrl}/api/admin/order/${id}/payment-status`, {
-        method: "POST",
+      const response = await fetch(`${backendUrl}/api/admin/orders/change-payment-status/${id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `${token}`,
@@ -167,9 +174,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
       if (!response.ok) {
         throw new Error("Failed to update payment status");
-      }
+      } else {
+        setPaymentStatus(newStatus);
+        window.location.href = `/dashboard/orders/${id}`;
 
-      setPaymentStatus(newStatus);
+
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     }
@@ -199,7 +209,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className='grid grid-cols-2 mt-6 gap-8 '>
+      <div className='grid lg:grid-cols-2 grid-cols-1 mt-6 gap-8 '>
         <div className='border border-1   rounded-md' >
           <div className='  border-b w-full py-4 px-6'>
             <h2 className='text-gray-900 font-medium'>User Information  </h2>
@@ -223,26 +233,56 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
         <div className='border border-1   rounded-md'>
-         <div className='flex'>
-         <div className='  border-b w-full py-4 px-6'>
-            <h2 className='text-gray-900 font-medium'>Order Information  </h2>
-            <p className='text-gray-600 text-xs b mb-4 w-full'>Details About Order</p>
+          <div className='flex justify-between'>
+            <div className='  border-b w-full py-4 px-6'>
+              <h2 className='text-gray-900 font-medium'>Order Information  </h2>
+              <p className='text-gray-600 text-xs b mb-4 w-full'>Details About Order</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Select
+                defaultValue="order"
+                onValueChange={(value) => setSelectedType(value as 'order' | 'payment')}
+              >
+                <SelectTrigger className="w-[180px] bg-white">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="order">Order Status</SelectItem>
+                  <SelectItem value="payment">Payment Status</SelectItem>
+                </SelectContent>
+              </Select>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="bg-red-500 mr-2 hover:bg-red-600 text-center text-white text-sm px-4 py-1 rounded-md transition-colors">
+                    Change
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-white border rounded-md shadow-lg">
+                  {selectedType === 'order' ? (
+                    orderStatusOptions.map((status) => (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => handleOrderStatusChange(status)}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
+                      >
+                        {status}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    paymentStatusOptions.map((status) => (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => handlePaymentStatusChange(status)}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer capitalize"
+                      >
+                        {status}
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-          <div>
-          <DropdownMenu>
-  {/* <DropdownMenuTrigger><p className='text-sm border border-b'>Clck here for changing status</p></DropdownMenuTrigger> */}
-  <DropdownMenuContent>
-    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem>Profile</DropdownMenuItem>
-    <DropdownMenuItem>Billing</DropdownMenuItem>
-    <DropdownMenuItem>Team</DropdownMenuItem>
-    <DropdownMenuItem>Subscription</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-
-          </div>
-         </div>
           <div className='px-4 bg-gray-50'>
             <Table>
               <TableHeader>
@@ -286,26 +326,45 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 ))}
               </TableBody>
               <TableFooter>
-                <TableRow>
-                  <TableCell className='flex flex-col'>Total <p className='mt-4'>+</p></TableCell>
-                  <TableCell className='flex items-center' >
-                    <p className='mr-4'>Delivery charge</p>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={deliveryCharge}
-                        onChange={(e) => setDeliveryCharge(Number(e.target.value))}
-                        className="w-20 px-2 py-1 border rounded"
-                      />
-                      <button
-                        onClick={() => updateDeliveryCharge(deliveryCharge)}
-                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
-                      >
-                        Update
-                      </button>
+                <TableRow className="border-t-2 border-gray-200">
+                  <TableCell colSpan={6}>
+                    <div className="space-y-4 py-2">
+                      <div className="flex items-center justify-between px-4">
+                        <span className="font-medium text-gray-700">Subtotal</span>
+                        <span className="font-semibold">{orderDetails.totalAmount}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between px-4">
+                        <div className="flex items-center space-x-2">
+                          <Plus size={16} className="text-gray-500" />
+                          <span className="font-medium text-gray-700">Delivery Charge</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            value={deliveryCharge}
+                            onChange={(e) => setDeliveryCharge(Number(e.target.value))}
+                            className="w-24 text-right"
+                            min="0"
+                          />
+                          <Button
+                            onClick={() => updateDeliveryCharge(deliveryCharge)}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            Update
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between px-4 pt-3 border-t">
+                        <span className="text-sm font-semibold">Total Amount</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          ₹{1000 + deliveryCharge}
+                        </span>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell> = {orderDetails.totalAmount + deliveryCharge}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

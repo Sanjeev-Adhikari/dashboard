@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getToken } from "@/utils/getToken";
+import { useRouter } from "next/navigation";
 
 // Constants for breadcrumbs
 const menu: breadCrumbItems[] = [
@@ -35,7 +36,11 @@ const menu: breadCrumbItems[] = [
   },
 ];
 
-// Table columns definition
+
+
+const Menu = () => {
+  const router = useRouter();
+
 const tableColumns = (handleDelete: (id: string) => void) => [
   {
     header: "Food Name",
@@ -68,13 +73,11 @@ const tableColumns = (handleDelete: (id: string) => void) => [
           <MoreVertical className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
+          <DropdownMenuItem
+          onSelect={() => router.push(`/dashboard/menu/${row._id}`)}
+          className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
             <Eye className="h-4 w-4" />
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2 cursor-pointer focus:outline-none focus:bg-gray-100">
-            <Edit className="h-4 w-4" />
-            Edit
+            View/Edit
           </DropdownMenuItem>
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer text-red-600 focus:outline-none focus:bg-gray-100"
@@ -89,7 +92,7 @@ const tableColumns = (handleDelete: (id: string) => void) => [
   },
 ];
 
-const Menu = () => {
+
   const [data, setData] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState<string | null>(null);
